@@ -1,0 +1,1327 @@
+--[[
+==============================================================
+        ZYNTRIX PRIME • TELEKINESIS
+        MOBILE MINI UI • TIẾNG VIỆT
+==============================================================
+
+    • TELEKINESIS
+    • TIẾN / LÙI
+    • TRÁI / PHẢI
+    • LÊN / XUỐNG
+    • THẢ
+    • NÉM
+    • RESET
+    • R = XOAY / RESET VẬT
+    • UI CHỈ HIỆN KHI CẦM TOOL
+
+==============================================================
+]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+
+--==============================================================
+-- CẤU HÌNH
+--==============================================================
+
+local Range = "Min"
+local power = 1000
+
+--==============================================================
+-- SIMULATION RADIUS
+--==============================================================
+
+pcall(function()
+
+    RunService.RenderStepped:Connect(function()
+
+        if Range == "Max" then
+
+            pcall(function()
+                sethiddenproperty(
+                    LocalPlayer,
+                    "SimulationRadius",
+                    0
+                )
+            end)
+
+        elseif Range == "Min" then
+
+            pcall(function()
+                sethiddenproperty(
+                    LocalPlayer,
+                    "SimulationRadius",
+                    500
+                )
+            end)
+
+        end
+
+    end)
+
+end)
+
+--==============================================================
+-- TOOL
+--==============================================================
+
+local Tool = Instance.new("Tool")
+
+Tool.Name = "Telekinesis"
+Tool.RequiresHandle = true
+Tool.CanBeDropped = false
+
+Tool.Grip = CFrame.new(
+    0, 0, 0,
+    0, 1, 0,
+    0, 0, 1,
+    1, 0, 0
+)
+
+--==============================================================
+-- HANDLE
+--==============================================================
+
+local Handle = Instance.new("Part")
+
+Handle.Name = "Handle"
+Handle.Size = Vector3.new(
+    1,
+    1.2,
+    1
+)
+
+Handle.Transparency = 1
+Handle.CanCollide = false
+Handle.CanTouch = false
+Handle.CanQuery = false
+Handle.Massless = true
+Handle.Material = Enum.Material.Metal
+
+Handle.Parent = Tool
+
+--==============================================================
+-- BIẾN
+--==============================================================
+
+local object = nil
+
+local mousedown = false
+
+local uneq = true
+
+local dist = 5
+
+local offset = Vector3.zero
+
+local moveStep = 0.26
+
+local moveDir = {
+
+    FWD = false,
+    BCK = false,
+
+    LFT = false,
+    RGT = false,
+
+    UP = false,
+    DN = false
+
+}
+
+--==============================================================
+-- BODY POSITION
+--==============================================================
+
+local BP = Instance.new("BodyPosition")
+
+BP.MaxForce = Vector3.new(
+    math.huge,
+    math.huge,
+    math.huge
+)
+
+BP.P = 20000
+BP.D = 1000
+
+--==============================================================
+-- POINT
+--==============================================================
+
+local point = Instance.new("Part")
+
+point.Name = "TelekinesisPoint"
+
+point.Size = Vector3.new(
+    1,
+    1,
+    1
+)
+
+point.Transparency = 1
+
+point.Anchored = true
+
+point.CanCollide = false
+point.CanTouch = false
+point.CanQuery = false
+
+point.Parent = nil
+
+--==============================================================
+-- GUI
+--==============================================================
+
+local ScreenGui = Instance.new("ScreenGui")
+
+ScreenGui.Name = "TelekGUI"
+
+ScreenGui.ResetOnSpawn = false
+
+ScreenGui.IgnoreGuiInset = true
+
+ScreenGui.ZIndexBehavior =
+    Enum.ZIndexBehavior.Sibling
+
+ScreenGui.Parent =
+    LocalPlayer:WaitForChild("PlayerGui")
+
+--==============================================================
+-- KHUNG MINI
+--==============================================================
+
+local Container = Instance.new("Frame")
+
+Container.Name = "TelekinesisPanel"
+
+Container.Size =
+    UDim2.fromOffset(
+        190,
+        185
+    )
+
+Container.AnchorPoint =
+    Vector2.new(1, 1)
+
+Container.Position =
+    UDim2.new(
+        1,
+        -8,
+        1,
+        -10
+    )
+
+Container.BackgroundColor3 =
+    Color3.fromRGB(
+        8,
+        12,
+        20
+    )
+
+Container.BackgroundTransparency = 0.06
+
+Container.BorderSizePixel = 0
+
+Container.Visible = false
+
+Container.Parent = ScreenGui
+
+--==============================================================
+-- BO GÓC
+--==============================================================
+
+local ContainerCorner =
+    Instance.new("UICorner")
+
+ContainerCorner.CornerRadius =
+    UDim.new(
+        0,
+        14
+    )
+
+ContainerCorner.Parent =
+    Container
+
+--==============================================================
+-- VIỀN
+--==============================================================
+
+local ContainerStroke =
+    Instance.new("UIStroke")
+
+ContainerStroke.Color =
+    Color3.fromRGB(
+        0,
+        200,
+        255
+    )
+
+ContainerStroke.Thickness = 1.2
+
+ContainerStroke.Transparency = 0.15
+
+ContainerStroke.Parent =
+    Container
+
+--==============================================================
+-- TITLE
+--==============================================================
+
+local Title =
+    Instance.new("TextLabel")
+
+Title.Name = "Title"
+
+Title.Size =
+    UDim2.new(
+        1,
+        -14,
+        0,
+        23
+    )
+
+Title.Position =
+    UDim2.fromOffset(
+        7,
+        4
+    )
+
+Title.BackgroundTransparency = 1
+
+Title.Text =
+    "⚡ TELEKINESIS"
+
+Title.Font =
+    Enum.Font.GothamBold
+
+Title.TextSize = 13
+
+Title.TextColor3 =
+    Color3.fromRGB(
+        0,
+        220,
+        255
+    )
+
+Title.TextXAlignment =
+    Enum.TextXAlignment.Left
+
+Title.Parent =
+    Container
+
+--==============================================================
+-- SUBTITLE
+--==============================================================
+
+local Subtitle =
+    Instance.new("TextLabel")
+
+Subtitle.Name =
+    "Subtitle"
+
+Subtitle.Size =
+    UDim2.new(
+        1,
+        -14,
+        0,
+        14
+    )
+
+Subtitle.Position =
+    UDim2.fromOffset(
+        7,
+        25
+    )
+
+Subtitle.BackgroundTransparency = 1
+
+Subtitle.Text =
+    "ĐIỀU KHIỂN VẬT THỂ"
+
+Subtitle.Font =
+    Enum.Font.Gotham
+
+Subtitle.TextSize = 8
+
+Subtitle.TextColor3 =
+    Color3.fromRGB(
+        140,
+        155,
+        170
+    )
+
+Subtitle.TextXAlignment =
+    Enum.TextXAlignment.Left
+
+Subtitle.Parent =
+    Container
+
+--==============================================================
+-- HÀM TẠO NÚT
+--==============================================================
+
+local function MakeButton(
+    name,
+    text,
+    position,
+    size
+)
+
+    local Button =
+        Instance.new("TextButton")
+
+    Button.Name = name
+
+    Button.Text = text
+
+    Button.Size =
+        size or
+        UDim2.fromOffset(
+            54,
+            31
+        )
+
+    Button.Position =
+        position
+
+    Button.BackgroundColor3 =
+        Color3.fromRGB(
+            20,
+            27,
+            38
+        )
+
+    Button.BackgroundTransparency = 0
+
+    Button.BorderSizePixel = 0
+
+    Button.AutoButtonColor = false
+
+    Button.Font =
+        Enum.Font.GothamBold
+
+    Button.TextSize = 10
+
+    Button.TextColor3 =
+        Color3.fromRGB(
+            235,
+            245,
+            255
+        )
+
+    Button.Parent =
+        Container
+
+    local Corner =
+        Instance.new("UICorner")
+
+    Corner.CornerRadius =
+        UDim.new(
+            0,
+            8
+        )
+
+    Corner.Parent =
+        Button
+
+    local Stroke =
+        Instance.new("UIStroke")
+
+    Stroke.Color =
+        Color3.fromRGB(
+            45,
+            70,
+            90
+        )
+
+    Stroke.Thickness = 0.8
+
+    Stroke.Parent =
+        Button
+
+    -- Hiệu ứng nhấn
+    Button.MouseButton1Down:Connect(function()
+
+        Button.BackgroundColor3 =
+            Color3.fromRGB(
+                0,
+                145,
+                190
+            )
+
+        Stroke.Color =
+            Color3.fromRGB(
+                0,
+                225,
+                255
+            )
+
+    end)
+
+    Button.MouseButton1Up:Connect(function()
+
+        Button.BackgroundColor3 =
+            Color3.fromRGB(
+                20,
+                27,
+                38
+            )
+
+        Stroke.Color =
+            Color3.fromRGB(
+                45,
+                70,
+                90
+            )
+
+    end)
+
+    return Button
+
+end
+
+--==============================================================
+-- NÚT DI CHUYỂN
+--==============================================================
+
+local BtnFWD =
+    MakeButton(
+        "FWD",
+        "▲ TIẾN",
+        UDim2.fromOffset(
+            68,
+            47
+        )
+    )
+
+local BtnBCK =
+    MakeButton(
+        "BCK",
+        "▼ LÙI",
+        UDim2.fromOffset(
+            68,
+            82
+        )
+    )
+
+local BtnLFT =
+    MakeButton(
+        "LFT",
+        "◀ TRÁI",
+        UDim2.fromOffset(
+            9,
+            64
+        )
+    )
+
+local BtnRGT =
+    MakeButton(
+        "RGT",
+        "PHẢI ▶",
+        UDim2.fromOffset(
+            127,
+            64
+        )
+    )
+
+--==============================================================
+-- LÊN / XUỐNG / THẢ
+--==============================================================
+
+local BtnDrop =
+    MakeButton(
+        "DROP",
+        "✋ THẢ",
+        UDim2.fromOffset(
+            9,
+            117
+        )
+    )
+
+local BtnUP =
+    MakeButton(
+        "UP",
+        "⬆ LÊN",
+        UDim2.fromOffset(
+            68,
+            117
+        )
+    )
+
+local BtnDN =
+    MakeButton(
+        "DN",
+        "⬇ XUỐNG",
+        UDim2.fromOffset(
+            127,
+            117
+        )
+    )
+
+--==============================================================
+-- NÉM / RESET
+--==============================================================
+
+local BtnThrow =
+    MakeButton(
+        "THROW",
+        "⚡ NÉM",
+        UDim2.fromOffset(
+            9,
+            153
+        ),
+        UDim2.fromOffset(
+            83,
+            27
+        )
+    )
+
+local BtnReset =
+    MakeButton(
+        "RESET",
+        "↻ RESET",
+        UDim2.fromOffset(
+            98,
+            153
+        ),
+        UDim2.fromOffset(
+            83,
+            27
+        )
+    )
+
+--==============================================================
+-- HOLD BUTTON
+--==============================================================
+
+local function SetMove(
+    key,
+    value
+)
+
+    moveDir[key] = value
+
+end
+
+local function HoldButton(
+    Button,
+    key
+)
+
+    Button.MouseButton1Down:Connect(
+        function()
+
+            SetMove(
+                key,
+                true
+            )
+
+        end
+    )
+
+    Button.MouseButton1Up:Connect(
+        function()
+
+            SetMove(
+                key,
+                false
+            )
+
+        end
+    )
+
+    Button.MouseLeave:Connect(
+        function()
+
+            SetMove(
+                key,
+                false
+            )
+
+        end
+    )
+
+end
+
+HoldButton(
+    BtnFWD,
+    "FWD"
+)
+
+HoldButton(
+    BtnBCK,
+    "BCK"
+)
+
+HoldButton(
+    BtnLFT,
+    "LFT"
+)
+
+HoldButton(
+    BtnRGT,
+    "RGT"
+)
+
+HoldButton(
+    BtnUP,
+    "UP"
+)
+
+HoldButton(
+    BtnDN,
+    "DN"
+)
+
+--==============================================================
+-- RESET
+--==============================================================
+
+BtnReset.MouseButton1Click:Connect(
+    function()
+
+        offset =
+            Vector3.zero
+
+        dist = 5
+
+    end
+)
+
+--==============================================================
+-- DROP
+--==============================================================
+
+BtnDrop.MouseButton1Click:Connect(
+    function()
+
+        mousedown = false
+
+    end
+)
+
+--==============================================================
+-- THROW
+--==============================================================
+
+BtnThrow.MouseButton1Click:Connect(
+    function()
+
+        if object then
+
+            dist = power
+
+            task.wait(0.05)
+
+            mousedown = false
+
+        end
+
+    end
+)
+
+--==============================================================
+-- TARGET
+--==============================================================
+
+local function GetTarget(mouse)
+
+    if not mouse then
+        return nil
+    end
+
+    local Target =
+        mouse.Target
+
+    if not Target then
+        return nil
+    end
+
+    if not Target:IsA(
+        "BasePart"
+    ) then
+        return nil
+    end
+
+    if Target.Anchored then
+        return nil
+    end
+
+    local Character =
+        LocalPlayer.Character
+
+    if Character and
+        Target:IsDescendantOf(
+            Character
+        ) then
+
+        return nil
+
+    end
+
+    return Target
+
+end
+
+--==============================================================
+-- LASER
+--==============================================================
+
+local function CreateLaser(
+    fromPart,
+    toPart
+)
+
+    if not fromPart
+        or not toPart then
+
+        return nil
+
+    end
+
+    local Laser =
+        Instance.new("Part")
+
+    Laser.Name =
+        "TelekinesisLaser"
+
+    Laser.Anchored = true
+
+    Laser.CanCollide = false
+    Laser.CanTouch = false
+    Laser.CanQuery = false
+
+    Laser.Material =
+        Enum.Material.Neon
+
+    Laser.Color =
+        Color3.fromRGB(
+            0,
+            200,
+            255
+        )
+
+    Laser.Transparency = 0.25
+
+    local Start =
+        fromPart.Position
+
+    local Finish =
+        toPart.Position
+
+    local Distance =
+        (Start - Finish).Magnitude
+
+    Laser.Size =
+        Vector3.new(
+            0.18,
+            0.18,
+            Distance
+        )
+
+    Laser.CFrame =
+        CFrame.lookAt(
+            (Start + Finish) / 2,
+            Finish
+        )
+
+    Laser.Parent =
+        workspace
+
+    return Laser
+
+end
+
+--==============================================================
+-- TELEKINESIS
+--==============================================================
+
+local function StartTelekinesis(mouse)
+
+    if mousedown then
+        return
+    end
+
+    if uneq then
+        return
+    end
+
+    mousedown = true
+
+    local Character =
+        LocalPlayer.Character
+
+    if not Character then
+
+        mousedown = false
+
+        return
+
+    end
+
+    local Humanoid =
+        Character:FindFirstChildOfClass(
+            "Humanoid"
+        )
+
+    if not Humanoid then
+
+        mousedown = false
+
+        return
+
+    end
+
+    local Root =
+        Character:FindFirstChild(
+            "HumanoidRootPart"
+        )
+
+    if not Root then
+
+        mousedown = false
+
+        return
+
+    end
+
+    local Target =
+        GetTarget(mouse)
+
+    if not Target then
+
+        mousedown = false
+
+        return
+
+    end
+
+    object = Target
+
+    dist =
+        (
+            object.Position
+            - Handle.Position
+        ).Magnitude
+
+    offset =
+        Vector3.zero
+
+    point.Parent =
+        Tool
+
+    local laser = nil
+
+    local connection
+
+    connection =
+        RunService.RenderStepped:Connect(
+            function()
+
+                if not mousedown then
+                    return
+                end
+
+                if uneq then
+
+                    mousedown = false
+
+                    return
+
+                end
+
+                if not object then
+
+                    mousedown = false
+
+                    return
+
+                end
+
+                if not object.Parent then
+
+                    mousedown = false
+
+                    return
+
+                end
+
+                if not Handle.Parent then
+
+                    mousedown = false
+
+                    return
+
+                end
+
+                --==================================================
+                -- DI CHUYỂN
+                --==================================================
+
+                if moveDir.FWD then
+
+                    offset +=
+                        Vector3.new(
+                            0,
+                            0,
+                            -moveStep
+                        )
+
+                end
+
+                if moveDir.BCK then
+
+                    offset +=
+                        Vector3.new(
+                            0,
+                            0,
+                            moveStep
+                        )
+
+                end
+
+                if moveDir.LFT then
+
+                    offset +=
+                        Vector3.new(
+                            -moveStep,
+                            0,
+                            0
+                        )
+
+                end
+
+                if moveDir.RGT then
+
+                    offset +=
+                        Vector3.new(
+                            moveStep,
+                            0,
+                            0
+                        )
+
+                end
+
+                if moveDir.UP then
+
+                    offset +=
+                        Vector3.new(
+                            0,
+                            moveStep,
+                            0
+                        )
+
+                end
+
+                if moveDir.DN then
+
+                    offset +=
+                        Vector3.new(
+                            0,
+                            -moveStep,
+                            0
+                        )
+
+                end
+
+                --==================================================
+                -- CAMERA
+                --==================================================
+
+                local Camera =
+                    workspace.CurrentCamera
+
+                if not Camera then
+                    return
+                end
+
+                local CameraCF =
+                    Camera.CFrame
+
+                local BasePosition =
+                    Handle.Position
+                    + CameraCF.LookVector
+                    * dist
+
+                local TargetPosition =
+                    BasePosition
+                    + CameraCF.RightVector
+                    * offset.X
+                    + CameraCF.UpVector
+                    * offset.Y
+                    + CameraCF.LookVector
+                    * (-offset.Z)
+
+                --==================================================
+                -- BODY POSITION
+                --==================================================
+
+                BP.Parent =
+                    object
+
+                BP.Position =
+                    TargetPosition
+
+                --==================================================
+                -- LASER
+                --==================================================
+
+                if laser then
+
+                    laser:Destroy()
+
+                    laser = nil
+
+                end
+
+                laser =
+                    CreateLaser(
+                        Handle,
+                        object
+                    )
+
+            end
+        )
+
+    --==========================================================
+    -- CHỜ THẢ
+    --==========================================================
+
+    repeat
+
+        task.wait()
+
+    until not mousedown
+
+    --==========================================================
+    -- CLEAN
+    --==========================================================
+
+    if connection then
+
+        connection:Disconnect()
+
+    end
+
+    if laser then
+
+        laser:Destroy()
+
+    end
+
+    BP.Parent = nil
+
+    object = nil
+
+    point.Parent = nil
+
+end
+
+--==============================================================
+-- EQUIP
+--==============================================================
+
+local mouse = nil
+
+Tool.Equipped:Connect(
+    function(toolMouse)
+
+        uneq = false
+
+        mouse =
+            toolMouse
+
+        -- HIỆN UI
+        Container.Visible = true
+
+        local Character =
+            LocalPlayer.Character
+
+        if Character then
+
+            local Humanoid =
+                Character:FindFirstChildOfClass(
+                    "Humanoid"
+                )
+
+            if Humanoid then
+
+                Humanoid.Died:Connect(
+                    function()
+
+                        mousedown = false
+
+                        uneq = true
+
+                        BP.Parent = nil
+
+                        point.Parent = nil
+
+                        Container.Visible = false
+
+                    end
+                )
+
+            end
+
+        end
+
+        --======================================================
+        -- CLICK VẬT
+        --======================================================
+
+        mouse.Button1Down:Connect(
+            function()
+
+                StartTelekinesis(
+                    mouse
+                )
+
+            end
+        )
+
+        --======================================================
+        -- PHÍM R
+        --======================================================
+
+        mouse.KeyDown:Connect(
+            function(key)
+
+                key =
+                    key:lower()
+
+                if key == "r" then
+
+                    if not object then
+                        return
+                    end
+
+                    local BG =
+                        Instance.new(
+                            "BodyGyro"
+                        )
+
+                    BG.MaxTorque =
+                        Vector3.new(
+                            math.huge,
+                            math.huge,
+                            math.huge
+                        )
+
+                    BG.CFrame =
+                        CFrame.new(
+                            object.Position
+                        )
+
+                    BG.Parent =
+                        object
+
+                    task.wait(
+                        0.15
+                    )
+
+                    if BG and BG.Parent then
+
+                        BG:Destroy()
+
+                    end
+
+                    if object
+                        and object.Parent then
+
+                        object.AssemblyLinearVelocity =
+                            Vector3.zero
+
+                        object.AssemblyAngularVelocity =
+                            Vector3.zero
+
+                    end
+
+                end
+
+            end
+        )
+
+        Tool.Icon =
+            "rbxasset://textures/GunCursor.png"
+
+    end
+)
+
+--==============================================================
+-- UNEQUIP
+--==============================================================
+
+Tool.Unequipped:Connect(
+    function()
+
+        uneq = true
+
+        mousedown = false
+
+        BP.Parent = nil
+
+        point.Parent = nil
+
+        object = nil
+
+        Container.Visible = false
+
+        for key in pairs(moveDir) do
+
+            moveDir[key] = false
+
+        end
+
+    end
+)
+
+--==============================================================
+-- RESPAWN
+--==============================================================
+
+LocalPlayer.CharacterAdded:Connect(
+    function()
+
+        mousedown = false
+
+        uneq = true
+
+        BP.Parent = nil
+
+        point.Parent = nil
+
+        object = nil
+
+        Container.Visible = false
+
+        for key in pairs(moveDir) do
+
+            moveDir[key] = false
+
+        end
+
+        task.wait(1)
+
+        if Tool.Parent ~=
+            LocalPlayer.Backpack then
+
+            Tool.Parent =
+                LocalPlayer.Backpack
+
+        end
+
+    end
+)
+
+--==============================================================
+-- ĐƯA TOOL VÀO BACKPACK
+--==============================================================
+
+Tool.Parent =
+    LocalPlayer:WaitForChild(
+        "Backpack"
+    )
